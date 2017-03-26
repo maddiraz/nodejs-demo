@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>NodeJS App</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="stylesheets/style.css">
+  </head>
+
+  <body>
+    <table>
+      <tr>
+        <td style= "width:30%;">
+          <img class = "newappIcon" src="images/newapp-icon.png">
+        </td>
+        <td>
+          <h1 id="message">NodeJS Application</h1>
+              <div>
+                <label>Serial Number</label>
+                <input type="text" id="sernum" placeholder="Enter serial num here">
+                <button id="btn" type="submit">Submit</button>
+              </div>              
+        </td>
+      </tr>
+      <tr>
+        <td>
+        </td>
+        <td>
+          <div id="json-data"></div>
+          <script src=scripts/api.js></script>          
+        </td>
+      </tr>
+    </table>
+  </body>
+
+</html>
