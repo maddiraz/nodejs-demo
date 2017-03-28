@@ -34,6 +34,14 @@
         </td>
       </tr>
       <% } %>
+      <% if(jsonData){ %>
+      <tr>
+        <td></td>
+        <td>
+          <span class="blue"><%= jsonData[0].name%> <%= jsonData[1].name%> <%= jsonData[2].name%> </span>
+        </td>        
+      </tr>
+      <% } %>
     </table>
   </body>
 

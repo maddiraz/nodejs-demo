@@ -79,7 +79,8 @@ app.post('/',function(req, res){
 				usermessage = '';
 		    	} else {
 		    		res.render('app',{
-			message: usermessage
+					jsonData: null,
+					message: usermessage
 		});		    		
 		    }
 		});
@@ -90,12 +91,14 @@ app.post('/app',function(req, res){
 	if (req.body.sernum=="") {
 		usermessage='Please enter serial number';
 		res.render('app', {
+			jsonData: null,
 			message: usermessage
 		});
 		usermessage = '';
 	} else {
 		sernum = req.body.sernum;
-		request.get('https://www.httpwatch.com/httpgallery/authentication/authenticatedimage/default.aspx',
+//		request.get('https://www.httpwatch.com/httpgallery/authentication/authenticatedimage/default.aspx',
+		request.get('https://learnwebcode.github.io/json-example/animals-' + sernum + '.json',
 			{ 'auth': {
 		    			'user': username,
 		    			'pass': password,
@@ -103,20 +106,29 @@ app.post('/app',function(req, res){
 		    		}		    		    
 			}, function(error, response, body){
 		    	if(error || response.statusCode != 200) {
-		    	console.log(error + response.statusCode);
-				usermessage='Something went wrong - ' + error + response.statusCode;
+				usermessage='Something went wrong while accessing api - ';
+				req.body.sernum = '';
 				res.render('index', {
-					message: usermessage + error + response.statusCode
+					message: usermessage + error
 				});
 				username = null;
 				password = null;
 				usermessage = '';
 		    	} else {
-		    		usermessage = 'Success';
-		    		res.render('app', {
-		    			jsonData: JSON.parse(body),
-		    			message: usermessage
-		    		});		    		
+			    		try{
+			    		res.render('app', {
+			    			jsonData: JSON.parse(body),
+			    			message: null
+			    		});} catch(error){
+			    		usermessage='Something went wrong while parsing response. '
+			    		res.render('app', {
+			    			jsonData: null,
+							message: usermessage + error
+						});
+						username = null;
+						password = null;
+						usermessage = '';	
+			    		}	    		
 		    }
 		});
 	}	
