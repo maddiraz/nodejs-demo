@@ -15,6 +15,9 @@ var bodyParser = require('body-parser');
 // for more info, see: https://www.npmjs.com/package/cfenv
 var cfenv = require('cfenv');
 
+// This is used to make HTTP requests with nodejs
+var request = require('request');
+
 // create a new express server
 var app = express();
 
@@ -33,13 +36,18 @@ app.use(bodyParser.urlencoded({extended: false}));
 var appEnv = cfenv.getAppEnv();
 
 // Global Variables
-var	usermessage = null;
+var username = null;
+var password = null;
+var	usermessage = '';
 
 // Renders and Redirects
 app.get('/',function(req, res){
 	res.render('index', {
 		message: usermessage
 	});
+	username = null;
+	password = null;
+	usermessage = '';
 });
 
 app.post('/',function(req, res){
@@ -48,8 +56,69 @@ app.post('/',function(req, res){
 		res.render('index', {
 			message: usermessage
 		});
+		username = null;
+		password = null;
+		usermessage = '';
 	} else {
-		res.render('app');
+		username = req.body.username;
+		password = req.body.password;
+		request.get('https://www.httpwatch.com/httpgallery/authentication/authenticatedimage/default.aspx',
+			{ 'auth': {
+		    			'user': username,
+		    			'pass': password,
+		    			'sendImmediately': false
+		    		}		    		    
+			}, function(error, response, body){
+		    	if(error || response.statusCode != 200) {
+				usermessage='Your credentials are incorrect or You are not authorized';
+				res.render('index', {
+					message: usermessage
+				});
+				username = null;
+				password = null;
+				usermessage = '';
+		    	} else {
+		    		res.render('app',{
+			message: usermessage
+		});		    		
+		    }
+		});
+	}	
+});
+
+app.post('/app',function(req, res){
+	if (req.body.sernum=="") {
+		usermessage='Please enter serial number';
+		res.render('app', {
+			message: usermessage
+		});
+		usermessage = '';
+	} else {
+		sernum = req.body.sernum;
+		request.get('https://www.httpwatch.com/httpgallery/authentication/authenticatedimage/default.aspx',
+			{ 'auth': {
+		    			'user': username,
+		    			'pass': password,
+		    			'sendImmediately': false
+		    		}		    		    
+			}, function(error, response, body){
+		    	if(error) {
+		    	console.log(error);
+				usermessage='Something went wrong - ' + error;
+				res.render('index', {
+					message: usermessage + '<p>' + error
+				});
+				username = null;
+				password = null;
+				usermessage = '''';
+		    	} else {
+		    		usermessage = 'Success';
+		    		res.render('app', {
+		    			jsonData: JSON.parse(body),
+		    			message: usermessage
+		    		});		    		
+		    }
+		});
 	}	
 });
 

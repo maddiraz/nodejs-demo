@@ -17,21 +17,23 @@
         </td>
         <td>
           <h1 id="message">NodeJS Application</h1>
+              <form method='POST' action="/app">
               <div>
                 <label>Serial Number</label>
-                <input type="text" id="sernum" placeholder="Enter serial num here">
-                <button id="btn" type="submit">Submit</button>
-              </div>              
+                <input type="text" name="sernum" placeholder="Enter serial num here">
+                <button name="btn" type="submit">Submit</button>
+              </div>
+              </form>            
         </td>
       </tr>
+      <% if(message){ %>
       <tr>
+        <td></td>
         <td>
-        </td>
-        <td>
-          <div id="json-data"></div>
-          <script src=scripts/api.js></script>          
+          <span class="blue"><%= message%></span>
         </td>
       </tr>
+      <% } %>
     </table>
   </body>
 
