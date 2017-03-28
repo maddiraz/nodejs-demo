@@ -51,6 +51,17 @@ h1 {
 	color: #00aed1;
 }
 
+.red {
+	color: #ff0000;
+}
+
+.green {
+	color: #00ff00;
+}
+
+.black {
+	color: #000000;
+}
 
 table {
 	table-layout: fixed;
