@@ -102,15 +102,15 @@ app.post('/app',function(req, res){
 		    			'sendImmediately': false
 		    		}		    		    
 			}, function(error, response, body){
-		    	if(error) {
-		    	console.log(error);
-				usermessage='Something went wrong - ' + error;
+		    	if(error || response.statusCode != 200) {
+		    	console.log(error + response.statusCode);
+				usermessage='Something went wrong - ' + error + response.statusCode;
 				res.render('index', {
-					message: usermessage + '<p>' + error
+					message: usermessage + error + response.statusCode
 				});
 				username = null;
 				password = null;
-				usermessage = '''';
+				usermessage = '';
 		    	} else {
 		    		usermessage = 'Success';
 		    		res.render('app', {
