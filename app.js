@@ -18,6 +18,9 @@ var cfenv = require('cfenv');
 // This is used to make HTTP requests with nodejs
 var request = require('request');
 
+// This is used for File Operations
+var fs = require('fs');
+
 // create a new express server
 var app = express();
 
@@ -38,6 +41,7 @@ var appEnv = cfenv.getAppEnv();
 // Global Variables
 var username = null;
 var password = null;
+var sernum = null;
 var	usermessage = '';
 
 // Renders and Redirects
@@ -80,7 +84,9 @@ app.post('/',function(req, res){
 		    	} else {
 		    		res.render('app',{
 					jsonData: null,
-					message: usermessage
+					message: usermessage,
+					sernum: sernum,
+					jsonFile: null
 		});		    		
 		    }
 		});
@@ -92,12 +98,13 @@ app.post('/app',function(req, res){
 		usermessage='Please enter serial number';
 		res.render('app', {
 			jsonData: null,
-			message: usermessage
+			message: usermessage,
+			sernum: null,
+			jsonFile: null
 		});
 		usermessage = '';
 	} else {
 		sernum = req.body.sernum;
-//		request.get('https://www.httpwatch.com/httpgallery/authentication/authenticatedimage/default.aspx',
 		request.get('https://learnwebcode.github.io/json-example/animals-' + sernum + '.json',
 			{ 'auth': {
 		    			'user': username,
@@ -116,18 +123,37 @@ app.post('/app',function(req, res){
 				usermessage = '';
 		    	} else {
 			    		try{
+			    		fileContents = fs.readFileSync("./public/files/myfile.json");
+			    		if(fileContents == "")
+			    		{
+			    		var jsonFile = { records: [] };
+			    		}
+			    		else
+			    		{
+			    		jsonFile = JSON.parse(fileContents);
+			    		}
+			    		jsonData = JSON.parse(body);
+			    		newname = jsonData[0].name;
+			    		newspecies = jsonData[0].species;
+			    		jsonFile.records.push({name: newname, species: newspecies});
+			    		fs.writeFileSync("./public/files/myfile.json",JSON.stringify(jsonFile), null, 2);
 			    		res.render('app', {
 			    			jsonData: JSON.parse(body),
-			    			message: null
+			    			message: null,
+			    			sernum: sernum,
+			    			jsonFile: JSON.parse(fs.readFileSync("./public/files/myfile.json")),
 			    		});} catch(error){
 			    		usermessage='Something went wrong while parsing response. '
 			    		res.render('app', {
 			    			jsonData: null,
-							message: usermessage + error
+			    			sernum: sernum,
+							message: usermessage + error,
+							jsonFile: null
 						});
 						username = null;
 						password = null;
-						usermessage = '';	
+						usermessage = '';
+						jsonFile = null;	
 			    		}	    		
 		    }
 		});

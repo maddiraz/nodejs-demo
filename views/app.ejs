@@ -20,7 +20,7 @@
               <form method='POST' action="/app">
               <div>
                 <label>Serial Number</label>
-                <input type="text" name="sernum" placeholder="Enter serial num here">
+                <input type="text" name="sernum" placeholder="Enter serial num here" value="<%= sernum %>">
                 <button name="btn" type="submit">Submit</button>
               </div>
               </form>            
@@ -28,7 +28,6 @@
       </tr>
       <% if(message){ %>
       <tr>
-        <td></td>
         <td>
           <span class="blue"><%= message%></span>
         </td>
@@ -36,13 +35,22 @@
       <% } %>
       <% if(jsonData){ %>
       <tr>
-        <td></td>
         <td>
           <span class="blue"><%= jsonData[0].name%> <%= jsonData[1].name%> <%= jsonData[2].name%> </span>
         </td>        
       </tr>
       <% } %>
     </table>
+    <% if(jsonFile) { %>
+    <table border="1" bgcolor="blue">
+      <th colspan="2">File Contents</th>
+       <% for(i=0;i< jsonFile.records.length ; i++) { %>
+       <tr>
+        <td><%= jsonFile.records[i].name %></td>
+         <td><%= jsonFile.records[i].species %></td>
+      </tr>
+      <% } %>
+    </table>
+    <% } %>
   </body>
-
 </html>
