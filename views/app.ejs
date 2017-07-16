@@ -21,36 +21,46 @@
               <div>
                 <label>Serial Number</label>
                 <input type="text" name="sernum" placeholder="Enter serial num here" value="<%= sernum %>">
-                <button name="btn" type="submit">Submit</button>
+                <button name="btn" type="submit" value="submit">Submit</button>
+              </div>
+              </form>            
+        </td>
+      </tr>
+      <tr>
+        <td>
+        </td>
+        <td>
+              <form method='GET' action="/raw" target="_blank">
+              <div>
+                <button>Raw File</button>
               </div>
               </form>            
         </td>
       </tr>
       <% if(message){ %>
       <tr>
-        <td>
+        <td colspan="2">
           <span class="blue"><%= message%></span>
         </td>
       </tr>
-      <% } %>
-      <% if(jsonData){ %>
-      <tr>
-        <td>
-          <span class="blue"><%= jsonData[0].name%> <%= jsonData[1].name%> <%= jsonData[2].name%> </span>
-        </td>        
-      </tr>
-      <% } %>
+      <% } %>      
     </table>
+    <br>
     <% if(jsonFile) { %>
+    <form method='POST' action="/app">
+    <input type="hidden" name="sernum" value="<%= sernum %>">
     <table border="1" bgcolor="blue">
-      <th colspan="2">File Contents</th>
-       <% for(i=0;i< jsonFile.records.length ; i++) { %>
+      <tr><td colspan="3"><b>File Contents</b></td></tr>
+       <% for(j=0;j< jsonFile.records.length ; j++) { %>
        <tr>
-        <td><%= jsonFile.records[i].name %></td>
-         <td><%= jsonFile.records[i].species %></td>
+        <td><input class="chkbox" type="checkbox" name="<%= j %>"></td>
+        <td><%= jsonFile.records[j].name %></td>
+        <td><%= jsonFile.records[j].species %></td>
       </tr>
       <% } %>
+      <tr><td colspan="3" align="center"><button name="btn" value="delete" type="submit">Delete</button>&nbsp;<button name="btn" value="update" type="submit">Update</button></td></tr>
     </table>
+    </form>
     <% } %>
   </body>
 </html>

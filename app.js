@@ -132,14 +132,46 @@ app.post('/app',function(req, res){
 			    		{
 			    		jsonFile = JSON.parse(fileContents);
 			    		}
+			    		if(req.body.btn == "submit")
+			    		{
 			    		jsonData = JSON.parse(body);
 			    		newname = jsonData[0].name;
 			    		newspecies = jsonData[0].species;
 			    		jsonFile.records.push({name: newname, species: newspecies});
+			    		usermessage = newname + " added to the list !";
+			    	    }
+			    	    if(req.body.btn == "delete")
+			    	    {
+			    	      delflag = false;
+			    	      for(i=0;i<jsonFile.records.length;i++){
+                                 if(req.body[i] == "on") {
+			    	      	        jsonFile.records.splice(i,1);
+			    	      	        delflag = true;
+			    	      	       }
+			    	      }
+			    	      if(delflag)
+			    	      	usermessage = 'Record(s) deleted successfully !'
+			    	      else
+			    	      	usermessage = 'Nothing selected for deletion !'
+			    	    }
+			    	    if(req.body.btn == "update")
+			    	    {
+			    	      updflag = false;
+			    	      for(i=0;i<jsonFile.records.length;i++){
+                                 if(req.body[i] == "on") {
+			    	      	        jsonFile.records[i].species = 'dog';
+			    	      	        updflag = true;
+			    	      	       }
+			    	      }
+			    	      if(updflag)
+			    	      	usermessage = 'Record(s) updated successfully !'
+			    	      else
+			    	      	usermessage = 'Nothing selected for update !'
+			    	    }
 			    		fs.writeFileSync("./public/files/myfile.json",JSON.stringify(jsonFile), null, 2);
 			    		res.render('app', {
 			    			jsonData: JSON.parse(body),
-			    			message: null,
+			    			message: usermessage,
 			    			sernum: sernum,
 			    			jsonFile: JSON.parse(fs.readFileSync("./public/files/myfile.json")),
 			    		});} catch(error){
@@ -158,6 +190,11 @@ app.post('/app',function(req, res){
 		    }
 		});
 	}	
+});
+
+app.get('/raw',function(req, res){
+	res.set('Content-Type', 'application/json');
+	res.send(fs.readFileSync("./public/files/myfile.json"));
 });
 
 // start server on the specified port and binding host
