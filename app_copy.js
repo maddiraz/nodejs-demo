@@ -43,7 +43,6 @@ var username = null;
 var password = null;
 var sernum = null;
 var	usermessage = '';
-var jsonFile = { records: [] };
 
 // Renders and Redirects
 app.get('/',function(req, res){
@@ -105,15 +104,8 @@ app.post('/app',function(req, res){
 		});
 		usermessage = '';
 	} else {
-		sernum = 1;
-		callAPI(sernum);		
-	}	
-});
-
-
-function callAPI(sernum)
-{
-	request.get('https://learnwebcode.github.io/json-example/animals-' + sernum + '.json',
+		sernum = req.body.sernum;
+		request.get('https://learnwebcode.github.io/json-example/animals-' + sernum + '.json',
 			{ 'auth': {
 		    			'user': username,
 		    			'pass': password,
@@ -122,30 +114,83 @@ function callAPI(sernum)
 			}, function(error, response, body){
 		    	if(error || response.statusCode != 200) {
 				usermessage='Something went wrong while accessing api - ';
+				req.body.sernum = '';
 				res.render('index', {
 					message: usermessage + error
 				});
 				username = null;
 				password = null;
 				usermessage = '';
-		    	} else {			    		
-		    		jsonFile.records[sernum] = body;
-			    	console.log('callAPI with sernum '+ sernum);
-			    	if(sernum < 3)
-			    		{ 
-			    			sernum=sernum+1;
-			    			callAPI(sernum); 
+		    	} else {
+			    		try{
+			    		fileContents = fs.readFileSync("./public/files/myfile.json");
+			    		if(fileContents == "")
+			    		{
+			    		var jsonFile = { records: [] };
 			    		}
-			    	else
-			    	{
-						for (var i = 1; i < jsonFile.records.length; i++) {
-							console.log('API response for ' + i + ' = ' + jsonFile.records[i]);
-						}		
-			    	}
-			 }
+			    		else
+			    		{
+			    		jsonFile = JSON.parse(fileContents);
+			    		}
+			    		if(req.body.btn == "submit")
+			    		{
+			    		jsonData = JSON.parse(body);
+			    		newname = jsonData[0].name;
+			    		newspecies = jsonData[0].species;
+			    		jsonFile.records.push({name: newname, species: newspecies});
+			    		usermessage = newname + " added to the list !";
+			    	    }
+			    	    if(req.body.btn == "delete")
+			    	    {
+			    	      delflag = false;
+			    	      for(i=0;i<jsonFile.records.length;i++){
+                                 if(req.body[i] == "on") {
+			    	      	        jsonFile.records.splice(i,1);
+			    	      	        delflag = true;
+			    	      	       }
+			    	      }
+			    	      if(delflag)
+			    	      	usermessage = 'Record(s) deleted successfully !'
+			    	      else
+			    	      	usermessage = 'Nothing selected for deletion !'
+			    	    }
+			    	    if(req.body.btn == "update")
+			    	    {
+			    	      updflag = false;
+			    	      for(i=0;i<jsonFile.records.length;i++){
+                                 if(req.body[i] == "on") {
+			    	      	        jsonFile.records[i].species = 'dog';
+			    	      	        updflag = true;
+			    	      	       }
+			    	      }
+			    	      if(updflag)
+			    	      	usermessage = 'Record(s) updated successfully !'
+			    	      else
+			    	      	usermessage = 'Nothing selected for update !'
+			    	    }
+			    		fs.writeFileSync("./public/files/myfile.json",JSON.stringify(jsonFile), null, 2);
+			    		res.render('app', {
+			    			jsonData: JSON.parse(body),
+			    			message: usermessage,
+			    			sernum: sernum,
+			    			jsonFile: JSON.parse(fs.readFileSync("./public/files/myfile.json")),
+			    		});} catch(error){
+			    		usermessage='Something went wrong while parsing response. '
+			    		res.render('app', {
+			    			jsonData: null,
+			    			sernum: sernum,
+							message: usermessage + error,
+							jsonFile: null
+						});
+						username = null;
+						password = null;
+						usermessage = '';
+						jsonFile = null;	
+			    		}	    		
+		    }
 		});
-	return;
-}
+	}	
+});
 
 app.get('/raw',function(req, res){
 	res.set('Content-Type', 'application/json');
