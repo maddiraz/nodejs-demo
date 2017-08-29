@@ -105,46 +105,54 @@ app.post('/app',function(req, res){
 		});
 		usermessage = '';
 	} else {
-		sernum = 1;
-		callAPI(sernum);		
-	}	
+	
+	console.log('Before API call');
+	sernum = 1;
+	usingItNow(res, myCallback);	
+	console.log('After API call');	
+   } 
 });
 
+var myCallback = function(res, jsonFile){
+	console.log('got data: ' + jsonFile.records);
+	usermessage = 'API call complete';
+	res.render('index', {
+					message: usermessage
+			});
+}
 
-function callAPI(sernum)
-{
-	request.get('https://learnwebcode.github.io/json-example/animals-' + sernum + '.json',
-			{ 'auth': {
-		    			'user': username,
-		    			'pass': password,
-		    			'sendImmediately': false
-		    		}		    		    
-			}, function(error, response, body){
-		    	if(error || response.statusCode != 200) {
-				usermessage='Something went wrong while accessing api - ';
-				res.render('index', {
-					message: usermessage + error
-				});
-				username = null;
-				password = null;
-				usermessage = '';
-		    	} else {			    		
-		    		jsonFile.records[sernum] = body;
-			    	console.log('callAPI with sernum '+ sernum);
-			    	if(sernum < 3)
-			    		{ 
-			    			sernum=sernum+1;
-			    			callAPI(sernum); 
-			    		}
-			    	else
-			    	{
-						for (var i = 1; i < jsonFile.records.length; i++) {
-							console.log('API response for ' + i + ' = ' + jsonFile.records[i]);
-						}		
-			    	}
-			 }
-		});
-	return;
+var usingItNow = function(res, callback){
+		request.get('https://learnwebcode.github.io/json-example/animals-' + sernum + '.json',
+					{ 'auth': {
+				    			'user': username,
+				    			'pass': password,
+				    			'sendImmediately': false
+				    		}		    		    
+					}, function(error, response, body){
+				    	if(error || response.statusCode != 200) {
+						usermessage='Something went wrong while accessing api - ';
+						res.render('index', {
+							message: usermessage + error
+						});
+						username = null;
+						password = null;
+						usermessage = '';
+				    	} else {			    		
+				    		jsonFile.records[sernum] = body;
+					    	console.log('callAPI with sernum '+ sernum);
+					    	sernum = sernum + 1;
+					    	if(sernum < 4)
+					    	{
+					    		console.log('Calling usingItNow recursively - sernum ' + sernum);
+					    		usingItNow(res, callback);
+					    	}
+					    	else
+					    	{
+					    		console.log('Calling callback - sernum ' + sernum);
+					    		callback(res, jsonFile);
+					    	}
+					    }
+		});	   
 }
 
 app.get('/raw',function(req, res){
